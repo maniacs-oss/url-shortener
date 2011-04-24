@@ -3,13 +3,8 @@ package controllers;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import play.*;
-import play.cache.Cache;
-import play.libs.Time;
 import play.mvc.*;
 
-import java.util.*;
-
-import models.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
