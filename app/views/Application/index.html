@@ -1,0 +1,49 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+
+<form id="urltoshort" action="#">
+    <div id="url-error"></div>
+    <label id="label-url" for="url-input">URL :
+        <input type="text" name="url-input" id="url-input" value="${flash.url}"/></label>
+
+    <div id="div-button-submit">
+        <a href="javascript:;" class="button" id="submit-button"><span>Short It</span></a>
+    </div>
+
+    <div id="result"></div>
+</form>
+
+<script type="text/javascript">
+    var onSuccessShort = function (shortedUrl) {
+         $('#result').html("<a href='@@{Application.index}"+shortedUrl+"'>@@{Application.index}"+shortedUrl+"</a>");
+    }
+    var doShort = function () {
+        var url = $('#url-input').val();
+        $.ajax({
+            url: '@{Application.postUrl()}',
+            success: onSuccessShort,
+            data: ({'url' : url}),
+            type: "POST",
+            error: function() {
+                $('#url-error').html("Sorry, I can't short that !");
+            }
+        });
+    }
+
+    $(document).ready(function() {
+
+        $('#submit-button').click(function(e) {
+            e.preventDefault();
+            doShort();
+        });
+
+        $('form#urltoshort input').keypress(function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                doShort();
+            }
+        });
+
+    });
+
+</script>
