@@ -1,0 +1,10 @@
+url-shortener is a simple url shortener. Crazy no ?
+
+See an example here : http://jvf.re
+
+Installation
+- Install Play! Framework 1.1 or 1.2 http://www.playframework.com
+- Install Redis 2.x.x
+- clone this repository
+- configure the app in conf/application.conf to setup your redis server.
+- run "play start" on root directory and that's all :)
