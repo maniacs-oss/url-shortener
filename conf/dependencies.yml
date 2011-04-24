@@ -2,3 +2,5 @@
 
 require:
     - play
+    - jedis
+    - apache-commons-pool
