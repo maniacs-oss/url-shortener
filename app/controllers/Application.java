@@ -54,7 +54,7 @@ public class Application extends Controller {
                 size++;
             } while (exitingUrl != null);
 
-            String niceUrl = url.startsWith("http://") ? url : "http://" + url;
+            String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
             jedis.set("url#" + key, niceUrl);
             return key;
         } finally {
