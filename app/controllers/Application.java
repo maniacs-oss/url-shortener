@@ -18,42 +18,61 @@ public class Application extends Controller {
     static final JedisPool pool = new JedisPool(new Config(),
             Play.configuration.getProperty("redis.host", "localhost"),
             Integer.valueOf(Play.configuration.getProperty("redis.port", "6379")),
-            10000,
+            300,
             Play.configuration.getProperty("redis.password", "foobared"));
 
     public static void index() {
-        Cache.get("");
         render();
     }
 
     public static void getUrl(String key) {
-        Jedis jedis = pool.getResource();
-        String redirectUrl = jedis.get("url#" + key);
-        if (redirectUrl == null) {
-            notFound();
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            String redirectUrl = jedis.get("url#" + key);
+            if (redirectUrl == null) {
+                notFound();
+            }
+            redirect(redirectUrl);
+        } finally {
+            if (jedis != null) {
+                pool.returnResource(jedis);
+            }
         }
-        redirect(redirectUrl);
     }
 
     public static String postUrl(String url) {
-        Jedis jedis = pool.getResource();
-        String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-        int size = 1;
-        String key = null, exitingUrl = null;
-        do {
-            key = RandomStringUtils.random(size, letters);
-            exitingUrl = findUrl(key);
-            size++;
-        } while (exitingUrl != null);
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+            int size = 1;
+            String key = null, exitingUrl = null;
+            do {
+                key = RandomStringUtils.random(size, letters);
+                exitingUrl = findUrl(key);
+                size++;
+            } while (exitingUrl != null);
 
-        String niceUrl = url.startsWith("http://")?url:"http://"+url;
-        jedis.set("url#" + key, niceUrl);
-        return key;
+            String niceUrl = url.startsWith("http://") ? url : "http://" + url;
+            jedis.set("url#" + key, niceUrl);
+            return key;
+        } finally {
+            if (jedis != null) {
+                pool.returnResource(jedis);
+            }
+        }
     }
 
     private static String findUrl(String key) {
-        Jedis jedis = pool.getResource();
-        return jedis.get("url#" + key);
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            return jedis.get("url#" + key);
+        } finally {
+            if (jedis != null) {
+                pool.returnResource(jedis);
+            }
+        }
     }
-
 }
