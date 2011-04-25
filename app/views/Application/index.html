@@ -2,6 +2,7 @@
 #{set title:'Home' /}
 
 <form id="urltoshort" action="#">
+    <div id="url-count"></div>
     <div id="url-error"></div>
     <label id="label-url" for="url-input">URL :
         <input type="text" name="url-input" id="url-input" value="${flash.url}"/></label>
@@ -35,6 +36,14 @@
         $('#submit-button').click(function(e) {
             e.preventDefault();
             doShort();
+        });
+
+        $.ajax({
+            url: '@{Application.count()}',
+            success: function(size) {
+                $('#url-count').html(size+" urls provided");
+            },
+            type: "GET"
         });
 
         $('form#urltoshort input').keypress(function(e) {

@@ -15,6 +15,7 @@ GET     /{key}                                  Application.getUrl
 POST    /                                       Application.postUrl
 
 GET     /adm/list                               Application.list
+GET     /adm/count                              Application.count
 
 # Catch all
 #*       /{controller}/{action}                  {controller}.{action}

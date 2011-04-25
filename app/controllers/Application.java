@@ -1,6 +1,7 @@
 package controllers;
 
 import org.apache.commons.lang.RandomStringUtils;
+
 import play.*;
 import play.mvc.*;
 
@@ -12,52 +13,58 @@ import java.util.Set;
 
 public class Application extends Controller {
 
-    static final JedisShardInfo redisConfig = new JedisShardInfo(
-            Play.configuration.getProperty("redis.host", "localhost"),
-            Integer.valueOf(Play.configuration.getProperty("redis.port", "6379")));
+   static final JedisShardInfo redisConfig = new JedisShardInfo(
+           Play.configuration.getProperty("redis.host", "localhost"),
+           Integer.valueOf(Play.configuration.getProperty("redis.port", "6379")));
 
-    static {
-        redisConfig.setPassword(Play.configuration.getProperty("redis.password", "foobared"));
-    }
+   static {
+      redisConfig.setPassword(Play.configuration.getProperty("redis.password", "foobared"));
+   }
 
-    public static void index() {
-        render();
-    }
+   public static void index() {
+      render();
+   }
 
-    public static void getUrl(String key) {
-        Jedis jedis = new Jedis(redisConfig);
-        String redirectUrl = jedis.get("url#" + key);
-        if (redirectUrl == null) {
-            notFound();
-        }
-        redirect(redirectUrl);
-    }
+   public static void getUrl(String key) {
+      Jedis jedis = new Jedis(redisConfig);
+      String redirectUrl = jedis.get("url#" + key);
+      if (redirectUrl == null) {
+         notFound();
+      }
+      redirect(redirectUrl);
+   }
 
-    public static String postUrl(String url) {
-        Jedis jedis = new Jedis(redisConfig);
-        String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-        int size = 1;
-        String key = null, exitingUrl = null;
-        do {
-            key = RandomStringUtils.random(size, letters);
-            exitingUrl = findUrl(key);
-            size++;
-        } while (exitingUrl != null);
+   public static String postUrl(String url) {
+      Jedis jedis = new Jedis(redisConfig);
+      String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+      int size = 1;
+      String key = null, exitingUrl = null;
+      do {
+         key = RandomStringUtils.random(size, letters);
+         exitingUrl = findUrl(key);
+         size++;
+      } while (exitingUrl != null);
 
-        String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
-        jedis.set("url#" + key, niceUrl);
-        return key;
-    }
+      String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
+      jedis.set("url#" + key, niceUrl);
+      return key;
+   }
 
-    public static void list(String p) {
-        Jedis jedis = new Jedis(redisConfig);
-        Set<String> keys = jedis.keys(p);
-        List<String> values = jedis.mget(keys.toArray(new String[keys.size()]));
-        renderJSON(values);
-    }
+   public static void list(String p) {
+      Jedis jedis = new Jedis(redisConfig);
+      Set<String> keys = jedis.keys(p);
+      List<String> values = jedis.mget(keys.toArray(new String[keys.size()]));
+      renderJSON(values);
+   }
 
-    private static String findUrl(String key) {
-        Jedis jedis = new Jedis(redisConfig);
-        return jedis.get("url#" + key);
-    }
+   public static Integer count() {
+      Jedis jedis = new Jedis(redisConfig);
+      Set<String> keys = jedis.keys("url#*");
+      return keys.size();
+   }
+
+   private static String findUrl(String key) {
+      Jedis jedis = new Jedis(redisConfig);
+      return jedis.get("url#" + key);
+   }
 }
