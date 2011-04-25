@@ -16,6 +16,7 @@ POST    /                                       Application.postUrl
 
 GET     /adm/list                               Application.list
 GET     /adm/count                              Application.count
+*       /adm/clean                              Application.clean
 
 # Catch all
 #*       /{controller}/{action}                  {controller}.{action}

@@ -2,12 +2,17 @@ package controllers;
 
 import org.apache.commons.lang.RandomStringUtils;
 
+import com.sun.jndi.toolkit.url.UrlUtil;
 import play.*;
 import play.mvc.*;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisShardInfo;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -61,6 +66,26 @@ public class Application extends Controller {
       Jedis jedis = new Jedis(redisConfig);
       Set<String> keys = jedis.keys("url#*");
       return keys.size();
+   }
+
+   public static void clean(){
+      Jedis jedis = new Jedis(redisConfig);
+      Set<String> keys = jedis.keys("url#*");
+      List<String> deletedUrl = new ArrayList<String>();
+      for(String key : keys){
+         try {
+            URL url = new URL(jedis.get(key));
+            url.openConnection();
+            url.openStream();
+         } catch (MalformedURLException e) {
+            deletedUrl.add(jedis.get(key));
+            jedis.del(key);
+         } catch (IOException e) {
+            deletedUrl.add(jedis.get(key));
+            jedis.del(key);
+         }
+      }
+      renderJSON(deletedUrl);
    }
 
    private static String findUrl(String key) {
