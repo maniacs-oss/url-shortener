@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public class Application extends Controller {
       Jedis jedis = new Jedis(redisConfig);
       Set<String> keys = jedis.keys(p);
       List<String> values = jedis.mget(keys.toArray(new String[keys.size()]));
-      renderJSON(values);
+      renderJSON(new HashSet(values));
    }
 
    public static Integer count() {
