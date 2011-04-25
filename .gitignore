@@ -13,5 +13,6 @@
 *.ipr
 *.log
 *.pmd
+*.iws
 *db/*
 *tmp/*
