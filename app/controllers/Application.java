@@ -33,7 +33,7 @@ public class Application extends Controller {
         redirect(redirectUrl);
     }
 
-    public static String postUrl(String url) {
+    public static void postUrl(String url) {
         Jedis jedis = new Jedis(redisConfig);
         String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
         int size = 1;
@@ -46,12 +46,12 @@ public class Application extends Controller {
 
         String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
         jedis.set("url#" + key, niceUrl);
-        return key;
+        renderJSON(key);
     }
 
-    public static void list(String pattern) {
+    public static void list(String p) {
         Jedis jedis = new Jedis(redisConfig);
-        Set<String> keys = jedis.keys(pattern);
+        Set<String> keys = jedis.keys(p);
         List<String> values = jedis.mget(keys.toArray(new String[keys.size()]));
         renderJSON(values);
     }
