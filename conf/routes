@@ -12,7 +12,6 @@ GET     /favicon.ico                            404
 GET     /public/                                staticDir:public
 
 GET     /{key}                                  Application.getUrl
-GET     /short/new                              Application.postUrl
 POST    /                                       Application.postUrl
 
 GET     /list                                   Application.list
