@@ -2,5 +2,5 @@
 
 require:
     - play
-    - jedis
-    - apache-commons-pool
+    - commons-pool -> commons-pool 1.5.6
+    - jedis -> jedis 1.5.2
