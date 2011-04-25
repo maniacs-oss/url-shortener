@@ -77,10 +77,7 @@ public class Application extends Controller {
             URL url = new URL(jedis.get(key));
             url.openConnection();
             url.openStream();
-         } catch (MalformedURLException e) {
-            deletedUrl.add(jedis.get(key));
-            jedis.del(key);
-         } catch (IOException e) {
+         } catch (Throwable e) {
             deletedUrl.add(jedis.get(key));
             jedis.del(key);
          }
