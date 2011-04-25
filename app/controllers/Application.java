@@ -7,6 +7,9 @@ import play.mvc.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisShardInfo;
 
+import java.util.List;
+import java.util.Set;
+
 public class Application extends Controller {
 
     static final JedisShardInfo redisConfig = new JedisShardInfo(
@@ -44,6 +47,13 @@ public class Application extends Controller {
         String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
         jedis.set("url#" + key, niceUrl);
         return key;
+    }
+
+    public static void list(String pattern) {
+        Jedis jedis = new Jedis(redisConfig);
+        Set<String> keys = jedis.keys(pattern);
+        List<String> values = jedis.mget(keys.toArray(new String[keys.size()]));
+        renderJSON(values);
     }
 
     private static String findUrl(String key) {

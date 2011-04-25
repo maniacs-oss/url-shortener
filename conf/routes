@@ -14,5 +14,7 @@ GET     /public/                                staticDir:public
 GET     /{key}                                  Application.getUrl
 POST    /                                       Application.postUrl
 
+GET     /list/{pattern}                         Application.list
+
 # Catch all
 #*       /{controller}/{action}                  {controller}.{action}
