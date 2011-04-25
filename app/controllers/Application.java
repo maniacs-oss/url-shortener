@@ -76,8 +76,7 @@ public class Application extends Controller {
       for(String key : keys){
          try {
             URL url = new URL(jedis.get(key));
-            url.openConnection();
-            url.openStream();
+            url.openStream().close();
          } catch (Throwable e) {
             deletedUrl.add(jedis.get(key));
             jedis.del(key);
