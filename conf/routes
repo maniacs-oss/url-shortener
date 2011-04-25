@@ -12,9 +12,10 @@ GET     /favicon.ico                            404
 GET     /public/                                staticDir:public
 
 GET     /{key}                                  Application.getUrl
+GET     /url                                    Application.postUrl
 POST    /                                       Application.postUrl
 
-GET     /list/{pattern}                         Application.list
+GET     /list                                   Application.list
 
 # Catch all
 #*       /{controller}/{action}                  {controller}.{action}
