@@ -33,15 +33,31 @@ public class Application extends Controller {
 
    public static void getUrl(String key) {
       Jedis jedis = new Jedis(redisConfig);
-      String redirectUrl = jedis.get("url#" + key);
+      String redirectUrl = jedis.get("fromkey#" + key);
       if (redirectUrl == null) {
          notFound();
       }
+      jedis.incr("count:" + key);
       redirect(redirectUrl);
    }
 
    public static String postUrl(String url) {
       Jedis jedis = new Jedis(redisConfig);
+
+      Set<String> oldKeys = jedis.keys("fromurl:" + url);
+      if (oldKeys.isEmpty()) {
+         String key = generateKey();
+         String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
+         jedis.set("fromkey:" + key, niceUrl);
+         jedis.set("fromurl:" + niceUrl, key);
+         jedis.set("count:" + key, "0");
+         return key;
+      } else {
+         return oldKeys.iterator().next();
+      }
+   }
+
+   private static String generateKey() {
       String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
       int size = 1;
       String key = null, exitingUrl = null;
@@ -50,9 +66,6 @@ public class Application extends Controller {
          exitingUrl = findUrl(key);
          size++;
       } while (exitingUrl != null);
-
-      String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
-      jedis.set("url#" + key, niceUrl);
       return key;
    }
 
@@ -63,17 +76,28 @@ public class Application extends Controller {
       renderJSON(new HashSet<String>(values));
    }
 
-   public static Integer count() {
+   public static void migrate() {
       Jedis jedis = new Jedis(redisConfig);
       Set<String> keys = jedis.keys("url#*");
+      for (String oldkey : keys) {
+         String url = jedis.get(oldkey);
+         postUrl(url);
+         jedis.del(oldkey);
+      }
+      renderText("OK");
+   }
+
+   public static Integer count() {
+      Jedis jedis = new Jedis(redisConfig);
+      Set<String> keys = jedis.keys("fromkey:*");
       return keys.size();
    }
 
-   public static void clean(){
+   public static void clean() {
       Jedis jedis = new Jedis(redisConfig);
-      Set<String> keys = jedis.keys("url#*");
+      Set<String> keys = jedis.keys("fromkey:*");
       List<String> deletedUrl = new ArrayList<String>();
-      for(String key : keys){
+      for (String key : keys) {
          try {
             URL url = new URL(jedis.get(key));
             url.openStream().close();
@@ -87,6 +111,6 @@ public class Application extends Controller {
 
    private static String findUrl(String key) {
       Jedis jedis = new Jedis(redisConfig);
-      return jedis.get("url#" + key);
+      return jedis.get("fromkey:" + key);
    }
 }
