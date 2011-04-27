@@ -17,6 +17,7 @@ POST    /                                       Application.postUrl
 GET     /adm/list                               Application.list
 GET     /adm/count                              Application.count
 *       /adm/clean                              Application.clean
+*       /adm/migrate                            Application.migrate
 
 # Catch all
 #*       /{controller}/{action}                  {controller}.{action}
