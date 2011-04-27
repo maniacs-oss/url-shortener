@@ -1,58 +1,68 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 
-<form id="urltoshort" action="#">
-    <div id="url-count"></div>
-    <div id="url-error"></div>
-    <label id="label-url" for="url-input">URL :
-        <input type="text" name="url-input" id="url-input" value="${flash.url}"/></label>
+<header>
+   <h1><a href="/" title="Homepage"><img src="imgs/valtech.png" title="Valtech logo"></a></h1>
 
-    <div id="div-button-submit">
-        <a href="javascript:;" class="button" id="submit-button"><span>Short It</span></a>
-    </div>
-
-    <div id="result"></div>
-</form>
+   <h2>Another URL Shortener</h2>
+</header>
+<section>
+   <form id="urltoshort" method="post" action="#">
+      <fieldset>
+         <legend>Shorten an URL :</legend>
+         <div>
+            <label for="url-input">URL : </label><input type="url" id="url-input" name="url-input" value="${flash.url}" required/>
+            <button  id="submit-button" type="submit" name="submit">shorten</button>
+            <p class="error" id="url-error"/>
+            <p class="notice">Warning, it's a beta, content could be removed.</p>
+         </div>
+      </fieldset>
+   </form>
+</section>
+<section id="result">
+</section>
+<footer>Brought to you by <a href="http://www.java-freelance.fr">Jean-Baptiste Lemée</a> | if you're a developper, you may grab the <a
+        href="https://github.com/jblemee/urlshortener" title="Link to source code">source code</a> | <span id="url-count"></span></footer>
 
 <script type="text/javascript">
-    var onSuccessShort = function (shortedUrl) {
-         $('#result').html("<a href='@@{Application.index}"+shortedUrl+"'>@@{Application.index}"+shortedUrl+"</a>");
-    }
-    var doShort = function () {
-        var url = $('#url-input').val();
-        $.ajax({
-            url: '@{Application.postUrl()}',
-            success: onSuccessShort,
-            data: ({'url' : url}),
-            type: "POST",
-            error: function() {
-                $('#url-error').html("Sorry, I can't short that !");
-            }
-        });
-    }
+   var onSuccessShort = function (shortedUrl) {
+      $('#result').html(" <h2>Your URL shortened :</h2><ul><li><a class='shorturl' href='@@{Application.index}" + shortedUrl + "'>@@{Application.index}" + shortedUrl + "</a></li></ul>");
+   }
+   var doShort = function () {
+      var url = $('#url-input').val();
+      $.ajax({
+         url: '@{Application.postUrl()}',
+         success: onSuccessShort,
+         data: ({'url' : url}),
+         type: "POST",
+         error: function() {
+            $('#url-error').html("Sorry, I can't short that !");
+         }
+      });
+   }
 
-    $(document).ready(function() {
+   $(document).ready(function() {
 
-        $('#submit-button').click(function(e) {
+      $('#submit-button').click(function(e) {
+         e.preventDefault();
+         doShort();
+      });
+
+      $.ajax({
+         url: '@{Application.count()}',
+         success: function(size) {
+            $('#url-count').html(size + " urls provided");
+         },
+         type: "GET"
+      });
+
+      $('form#urltoshort input').keypress(function(e) {
+         if (e.which == 13) {
             e.preventDefault();
             doShort();
-        });
+         }
+      });
 
-        $.ajax({
-            url: '@{Application.count()}',
-            success: function(size) {
-                $('#url-count').html(size+" urls provided");
-            },
-            type: "GET"
-        });
-
-        $('form#urltoshort input').keypress(function(e) {
-            if (e.which == 13) {
-                e.preventDefault();
-                doShort();
-            }
-        });
-
-    });
+   });
 
 </script>
