@@ -89,7 +89,7 @@ public class Application extends Controller {
       Set<String> keys = jedis.keys("url#*");
       for (String oldkey : keys) {
          String url = jedis.get(oldkey);
-         postUrl(url);
+         postUrl(url, jedis);
          jedis.del(oldkey);
       }
       renderText("OK");
