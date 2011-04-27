@@ -11,7 +11,7 @@
          <div>
             <label for="url-input">URL : </label><input type="url" id="url-input" name="url-input" value="${flash.url}" required/>
             <button  id="submit-button" type="submit" name="submit">shorten</button>
-            <p class="error" id="url-error"/>
+            <p class="error" id="url-error"  style="display:none">Sorry, I can't short that !</p>
             <p class="notice">Warning, it's a beta, content could be removed.</p>
          </div>
       </fieldset>
@@ -24,7 +24,9 @@
 
 <script type="text/javascript">
    var onSuccessShort = function (shortedUrl) {
+      $('#url-error').hide();
       $('#result').html(" <h2>Your URL shortened :</h2><ul><li><a class='shorturl' href='@@{Application.index}" + shortedUrl + "'>@@{Application.index}" + shortedUrl + "</a></li></ul>");
+      $('#result').show();
    }
    var doShort = function () {
       var url = $('#url-input').val();
@@ -34,7 +36,8 @@
          data: ({'url' : url}),
          type: "POST",
          error: function() {
-            $('#url-error').html("Sorry, I can't short that !");
+            $('#url-error').show();
+            $('#result').hide();
          }
       });
    }

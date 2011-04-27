@@ -1,16 +1,14 @@
 package controllers;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.validator.UrlValidator;
 
-import com.sun.jndi.toolkit.url.UrlUtil;
 import play.*;
 import play.mvc.*;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisShardInfo;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,10 +40,13 @@ public class Application extends Controller {
    }
 
    private static String postUrl(String url, Jedis jedis) {
-      Set<String> oldKeys = jedis.keys("fromurl:" + url);
+      String niceUrl = isValidUrl(url) ? url : "http://" + url;
+      Set<String> oldKeys = jedis.keys("fromurl:" + niceUrl);
       if (oldKeys.isEmpty()) {
+         if (!isValidUrl(niceUrl)) {
+            error("Url is not valid");
+         }
          String key = generateKey(jedis);
-         String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
          jedis.set("fromkey:" + key, niceUrl);
          jedis.set("fromurl:" + niceUrl, key);
          jedis.set("count:" + key, "0");
@@ -59,6 +60,21 @@ public class Application extends Controller {
       Jedis jedis = new Jedis(redisConfig);
 
       return postUrl(url, jedis);
+   }
+
+   private static boolean isReachableUrl(String url) {
+      try {
+         URL urlR = new URL(url);
+         urlR.openStream().close();
+      } catch (Throwable e) {
+         return false;
+      }
+      return true;
+   }
+
+   private static boolean isValidUrl(String url) {
+      UrlValidator urlValidator = new UrlValidator();
+      return urlValidator.isValid(url);
    }
 
    private static String generateKey(Jedis jedis) {
@@ -104,20 +120,29 @@ public class Application extends Controller {
    public static void clean() {
       Jedis jedis = new Jedis(redisConfig);
       Set<String> keys = jedis.keys("fromkey:*");
-      List<String> deletedUrl = new ArrayList<String>();
+      List<String> deletedKeys = new ArrayList<String>();
       for (String key : keys) {
-         try {
-            URL url = new URL(jedis.get(key));
-            url.openStream().close();
-         } catch (Throwable e) {
-            deletedUrl.add(jedis.get(key));
+         if (!isValidUrl(jedis.get(key)) || !isReachableUrl(jedis.get(key))) {
+            deletedKeys.add(jedis.get(key));
+            jedis.del("count:" + jedis.get("fromurl:" + jedis.get(key)));
+            jedis.del("fromurl:" + jedis.get(key));
             jedis.del(key);
          }
       }
-      renderJSON(deletedUrl);
+      keys = jedis.keys("fromurl:*");
+      for (String key : keys) {
+         String urlKey = jedis.get(key);
+         if (jedis.keys("fromkey:" + urlKey).isEmpty()) {
+            deletedKeys.add(key);
+            jedis.del("count:" + urlKey);
+            jedis.del("fromkey:" + urlKey);
+            jedis.del(key);
+         }
+      }
+      renderJSON(deletedKeys);
    }
 
-   private static String findUrl(String key,Jedis jedis) {
+   private static String findUrl(String key, Jedis jedis) {
       return jedis.get("fromkey:" + key);
    }
 }
