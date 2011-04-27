@@ -41,12 +41,10 @@ public class Application extends Controller {
       redirect(redirectUrl);
    }
 
-   public static String postUrl(String url) {
-      Jedis jedis = new Jedis(redisConfig);
-
+   private static String postUrl(String url, Jedis jedis) {
       Set<String> oldKeys = jedis.keys("fromurl:" + url);
       if (oldKeys.isEmpty()) {
-         String key = generateKey();
+         String key = generateKey(jedis);
          String niceUrl = url.startsWith("http://") || url.startsWith("https://") ? url : "http://" + url;
          jedis.set("fromkey:" + key, niceUrl);
          jedis.set("fromurl:" + niceUrl, key);
@@ -57,13 +55,19 @@ public class Application extends Controller {
       }
    }
 
-   private static String generateKey() {
+   public static String postUrl(String url) {
+      Jedis jedis = new Jedis(redisConfig);
+
+      return postUrl(url, jedis);
+   }
+
+   private static String generateKey(Jedis jedis) {
       String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
       int size = 1;
       String key = null, exitingUrl = null;
       do {
          key = RandomStringUtils.random(size, letters);
-         exitingUrl = findUrl(key);
+         exitingUrl = findUrl(key, jedis);
          size++;
       } while (exitingUrl != null);
       return key;
@@ -72,10 +76,10 @@ public class Application extends Controller {
    public static void list(String p) {
       Jedis jedis = new Jedis(redisConfig);
       Set<String> keys = jedis.keys(p);
-      if(!keys.isEmpty()){
+      if (!keys.isEmpty()) {
          List<String> values = jedis.mget(keys.toArray(new String[keys.size()]));
          renderJSON(new HashSet<String>(values));
-      }  else {
+      } else {
          notFound();
       }
    }
@@ -113,8 +117,7 @@ public class Application extends Controller {
       renderJSON(deletedUrl);
    }
 
-   private static String findUrl(String key) {
-      Jedis jedis = new Jedis(redisConfig);
+   private static String findUrl(String key,Jedis jedis) {
       return jedis.get("fromkey:" + key);
    }
 }
