@@ -8,3 +8,11 @@ Installation
 - clone this repository
 - configure the app in conf/application.conf to setup your redis server.
 - run "play start" on root directory and that's all :)
+
+
+API :
+Just call HTTP GET method on http://jvf.re/api/shorten?longurl={your_url_encode_url}
+Note : Your url must be url encoded.
+This url shortener support Cross Origin Resources Sharing (CORS), so you can use it in you own website with ajax call.
+But be carefull, some browser, like IE doesnt support CORS.
+
