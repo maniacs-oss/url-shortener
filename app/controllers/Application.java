@@ -36,7 +36,7 @@ public class Application extends Controller {
          notFound();
       }
       jedis.incr("count:" + key);
-      redirect(redirectUrl);
+      redirect(redirectUrl, true);
    }
 
    private static String newUrl(String longurl, Jedis jedis) {
