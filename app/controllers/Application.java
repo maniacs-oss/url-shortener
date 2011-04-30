@@ -59,7 +59,7 @@ public class Application extends Controller {
    public static String newUrl(String longurl) {
       Jedis jedis = new Jedis(redisConfig);
       response.accessControl("*", "GET", true);
-      return newUrl(longurl, jedis);
+      return  Http.Request.current().getBase()+ "/" + newUrl(longurl, jedis);
    }
 
    public static void optionsNewUrl() {

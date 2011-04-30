@@ -25,7 +25,7 @@
 <script type="text/javascript">
    var onSuccessShort = function (shortedUrl) {
       $('#url-error').hide();
-      $('#result').html(" <h2>Your URL shortened :</h2><ul><li><a class='shorturl' href='@@{Application.index}" + shortedUrl + "'>@@{Application.index}" + shortedUrl + "</a></li></ul>");
+      $('#result').html(" <h2>Your URL shortened :</h2><ul><li><a class='shorturl' href='"+ shortedUrl + "'>" + shortedUrl + "</a></li></ul>");
       $('#result').show();
    }
    var doShort = function () {
