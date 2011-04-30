@@ -58,7 +58,7 @@ public class Application extends Controller {
 
    public static String postUrl(String url) {
       Jedis jedis = new Jedis(redisConfig);
-
+      response.accessControl("*", "POST", true);
       return postUrl(url, jedis);
    }
 
@@ -112,6 +112,7 @@ public class Application extends Controller {
    }
 
    public static Integer count() {
+      response.accessControl("*", "GET", true);
       Jedis jedis = new Jedis(redisConfig);
       Set<String> keys = jedis.keys("fromkey:*");
       return keys.size();
