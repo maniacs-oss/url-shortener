@@ -62,6 +62,14 @@ public class Application extends Controller {
       return postUrl(url, jedis);
    }
 
+   public static void optionsPostUrl() {
+      response.accessControl("*", "POST", true);
+   }
+
+   public static void optionsCount() {
+      response.accessControl("*", "GET", true);
+   }
+
    private static boolean isReachableUrl(String url) {
       try {
          URL urlR = new URL(url);

@@ -13,9 +13,11 @@ GET     /public/                                staticDir:public
 
 GET     /{key}                                  Application.getUrl
 POST    /                                       Application.postUrl
+OPTIONS /                                       Application.optionsPostUrl
 
 GET     /adm/list                               Application.list
 GET     /adm/count                              Application.count
+OPTIONS /adm/count                              Application.optionCount
 *       /adm/clean                              Application.clean
 *       /adm/migrate                            Application.migrate
 
