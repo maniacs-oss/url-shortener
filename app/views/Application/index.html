@@ -31,10 +31,10 @@
    var doShort = function () {
       var url = $('#url-input').val();
       $.ajax({
-         url: '@{Application.postUrl()}',
+         url: '@{Application.newUrl()}',
          success: onSuccessShort,
-         data: ({'url' : url}),
-         type: "POST",
+         data: ({'longurl' : url}),
+         type: "GET",
          error: function() {
             $('#url-error').show();
             $('#result').hide();

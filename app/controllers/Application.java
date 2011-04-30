@@ -39,8 +39,8 @@ public class Application extends Controller {
       redirect(redirectUrl);
    }
 
-   private static String postUrl(String url, Jedis jedis) {
-      String niceUrl = isValidUrl(url) ? url : "http://" + url;
+   private static String newUrl(String longurl, Jedis jedis) {
+      String niceUrl = isValidUrl(longurl) ? longurl : "http://" + longurl;
       Set<String> oldKeys = jedis.keys("fromurl:" + niceUrl);
       if (oldKeys.isEmpty()) {
          if (!isValidUrl(niceUrl)) {
@@ -56,14 +56,14 @@ public class Application extends Controller {
       }
    }
 
-   public static String postUrl(String url) {
+   public static String newUrl(String longurl) {
       Jedis jedis = new Jedis(redisConfig);
-      response.accessControl("*", "POST", true);
-      return postUrl(url, jedis);
+      response.accessControl("*", "GET", true);
+      return newUrl(longurl, jedis);
    }
 
-   public static void optionsPostUrl() {
-      response.accessControl("*", "POST", true);
+   public static void optionsNewUrl() {
+      response.accessControl("*", "GET", true);
    }
 
    public static void optionsCount() {
@@ -113,7 +113,7 @@ public class Application extends Controller {
       Set<String> keys = jedis.keys("url#*");
       for (String oldkey : keys) {
          String url = jedis.get(oldkey);
-         postUrl(url, jedis);
+         newUrl(url, jedis);
          jedis.del(oldkey);
       }
       renderText("OK");
