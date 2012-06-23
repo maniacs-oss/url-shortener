@@ -1,6 +1,6 @@
 url-shortener is a simple url shortener. Crazy no ?
 
-See an example here : http://jvf.re
+See an example here : http://jvf.li
 
 Installation
 - Install Play! Framework 1.1 or 1.2 http://www.playframework.com
@@ -11,7 +11,7 @@ Installation
 
 
 API :
-Just call HTTP GET method on http://jvf.re/api/shorten?longurl={your_url_encode_url}
+Just call HTTP GET method on http://jvf.li/api/shorten?longurl={your_url_encode_url}
 Note : Your url must be url encoded.
 This url shortener support Cross Origin Resources Sharing (CORS), so you can use it in you own website with ajax call.
 But be carefull, some browser, like IE doesnt support CORS.
